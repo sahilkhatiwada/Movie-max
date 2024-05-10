@@ -4,7 +4,7 @@ import "./App.css";
 
 import { useState, useEffect } from "react";
 import { fetchDataFromApi } from "./utils/api";
-import { getApiConfiguration } from "./store/homeSlice";
+import { getApiConfiguration, getGenres } from "./store/homeSlice";
 import { useSelector, useDispatch } from "react-redux";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -34,18 +34,20 @@ function App() {
         poster: res.images.secure_base_url + "original",
         profile: res.images.secure_base_url + "original",
       };
-      dispatch(getApiConfiguration(res));
+      dispatch(getApiConfiguration(url));
     });
   };
 
   const genresCall = async () => {
     let promises = [];
-    let endPoints = ["movie", "tv"];
+    let endPoints = ["tv", "Movie"];
     let allGenres = {};
     endPoints.forEach((url) => {
       promises.push(fetchDataFromApi(`/genre/${url}/list`));
     });
+
     const data = await Promise.all(promises);
+    console.log(data);
     data.map(({ genres }) => {
       return genres.map((item) => (allGenres[item.id] = item));
     });
@@ -57,7 +59,7 @@ function App() {
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/:mediaType/:id" element={<Details />} />
         <Route path="/search/:query" element={<Search />} />
         <Route path="/explore/:mediaType" element={<Explore />} />
